@@ -1,10 +1,32 @@
 <script>
   let shapes = [];
   let selectedId = null;
+
   const add = (type) => {
-    const s = { id: crypto.randomUUID(), type, x: 260, y: 160, width: 120, height: 120, rotation: 0, stroke: '#ff5f5f', fill: '#ff5f5f', fillOpacity: 0.15, cornerRadius: 12 };
+    const s = {
+      id: crypto.randomUUID(),
+      type,
+      x: 260,
+      y: 160,
+      width: 120,
+      height: 120,
+      rotation: 0,
+      stroke: '#ff5f5f',
+      fill: '#ff5f5f',
+      fillOpacity: 0.15,
+      cornerRadius: 12
+    };
+
     shapes = [...shapes, s];
     selectedId = s.id;
+  };
+
+  $: selected = shapes.find((x) => x.id === selectedId) ?? null;
+
+  const updateSelectedStroke = (value) => {
+    shapes = shapes.map((shape) =>
+      shape.id === selectedId ? { ...shape, stroke: value } : shape
+    );
   };
 </script>
 
@@ -12,12 +34,16 @@
   <button on:click={() => add('rect')}>rect</button>
   <button on:click={() => add('circle')}>circle</button>
   <button on:click={() => add('triangle')}>triangle</button>
-  {#if shapes.find((x) => x.id === selectedId)}
-    <input type="color" bind:value={shapes.find((x) => x.id === selectedId).stroke} />
+  {#if selected}
+    <input
+      type="color"
+      value={selected.stroke}
+      on:input={(e) => updateSelectedStroke(e.currentTarget.value)}
+    />
   {/if}
 </div>
 <svg width="100%" height="320" viewBox="0 0 520 320" style="background:#151515;">
-  {#each shapes as shape}
+  {#each shapes as shape (shape.id)}
     <g transform={`translate(${shape.x} ${shape.y}) rotate(${shape.rotation})`} on:mousedown={() => selectedId = shape.id}>
       {#if shape.type === 'circle'}
         <ellipse rx={shape.width/2} ry={shape.height/2} fill={shape.fill} fill-opacity={shape.fillOpacity} stroke={shape.stroke} stroke-width="2" />
