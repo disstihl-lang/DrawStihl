@@ -1,0 +1,10 @@
+.sliderControl {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  transition: opacity 0.2s ease;
+}
+
+.activeSlider {
+  opacity: 1 !important;
+}

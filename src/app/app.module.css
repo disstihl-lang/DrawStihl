@@ -1,0 +1,24 @@
+.app {
+  width: 100vw;
+  height: 100dvh;
+  position: relative;
+  overflow: hidden;
+}
+
+.uploadPanel {
+  position: absolute;
+  left: 12px;
+  bottom: 12px;
+  z-index: 40;
+  display: flex;
+  gap: 10px;
+  background: rgba(0, 0, 0, 0.45);
+  border-radius: 10px;
+  padding: 8px 10px;
+  color: #fff;
+}
+
+.uploadPanel input {
+  display: block;
+  max-width: 150px;
+}
