@@ -1,9 +1,11 @@
 import { defineConfig } from 'vite'
 import react from '@vitejs/plugin-react'
 
-const isProduction = process.env.NODE_ENV === 'production'
+export default defineConfig(({ command, mode }) => {
+  const isProduction = command === 'build' || mode === 'production'
 
-export default defineConfig({
-  base: isProduction ? '/DrawStihl/' : '/',
-  plugins: [react()],
+  return {
+    base: isProduction ? '/DrawStihl/' : '/',
+    plugins: [react()],
+  }
 })
