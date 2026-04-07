@@ -25,16 +25,9 @@ jobs:
         with:
           node-version: 20
           cache: npm
-          registry-url: https://registry.npmjs.org/   # ✅ фикс registry
-
-      - name: Force npm registry
-        run: npm config set registry https://registry.npmjs.org/   # ✅ дополнительная гарантия
-
-      - name: Debug registry (optional)
-        run: npm config get registry   # можно потом удалить
 
       - name: Install dependencies
-        run: npm install   # ⚠️ заменил ci → install (нет package-lock)
+        run: npm install
 
       - name: Build
         run: npm run build
@@ -43,7 +36,7 @@ jobs:
         run: |
           test -f dist/index.html
           ! grep -q 'src="/src/main.tsx"' dist/index.html
-          grep -q 'assets/' dist/index.html
+          grep -q '/DrawStihl/assets/' dist/index.html
 
       - name: Deploy build artifacts to gh-pages
         uses: JamesIves/github-pages-deploy-action@v4
