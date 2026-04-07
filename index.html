@@ -88,6 +88,16 @@
         }
         @media (max-width: 640px) { .settings-drawer { width: 85%; } }
         .settings-drawer.open { transform: translateX(0); }
+        .settings-drawer.preview-mode .drawer-content {
+            opacity: 0.2;
+        }
+        .settings-drawer.preview-mode .slider-control.active {
+            opacity: 1;
+        }
+        .settings-drawer .drawer-content,
+        .settings-drawer .slider-control {
+            transition: opacity 0.2s ease;
+        }
 
         .drawer-handle {
             position: absolute;
@@ -314,7 +324,7 @@
         <div class="drawer-handle" onclick="toggleDrawer()">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
         </div>
-        <div class="p-6 space-y-6">
+        <div class="p-6 space-y-6 drawer-content">
             <h2 class="text-xl font-bold border-b pb-2 text-gray-800">Инструменты</h2>
             
             <div class="space-y-2">
@@ -334,7 +344,7 @@
             <div class="space-y-5 pt-4 border-t">
                 <div id="layer-name" class="text-xs font-bold text-red-500 uppercase">Настройка: Референс</div>
                 
-                <div>
+                <div class="slider-control">
                     <div class="flex justify-between items-center mb-1">
                         <label class="text-[9px] uppercase text-gray-400">Прозрачность</label>
                         <span id="op-val" class="text-[10px] font-bold text-gray-600">100%</span>
@@ -342,7 +352,7 @@
                     <input type="range" id="op-slider" min="0" max="100" value="100" oninput="updateFilters()">
                 </div>
                 
-                <div>
+                <div class="slider-control">
                     <div class="flex justify-between items-center mb-1">
                         <label class="text-[9px] uppercase text-gray-400">Контрастность</label>
                         <span id="ct-val" class="text-[10px] font-bold text-gray-600">100%</span>
@@ -350,7 +360,7 @@
                     <input type="range" id="ct-slider" min="0" max="200" value="100" oninput="updateFilters()">
                 </div>
                 
-                <div>
+                <div class="slider-control">
                     <div class="flex justify-between items-center mb-1">
                         <label class="text-[9px] uppercase text-gray-400">Яркость</label>
                         <span id="br-val" class="text-[10px] font-bold text-gray-600">100%</span>
@@ -396,6 +406,8 @@
     const brSliderEl = document.getElementById('br-slider');
     const brValEl = document.getElementById('br-val');
     const nudgeButtons = document.querySelectorAll('.nudge-btn');
+    const sliders = [opSliderEl, ctSliderEl, brSliderEl];
+    let activeSliderControl = null;
 
     function createDefaultState(type) {
         return {
@@ -568,7 +580,30 @@
 
     function toggleDrawer() { 
         drawerEl.classList.toggle('open'); 
+        if (!drawerEl.classList.contains('open')) {
+            clearSliderPreviewMode();
+        }
         syncSliders(); 
+        resetIdleTimer();
+    }
+
+    function clearSliderPreviewMode() {
+        drawerEl.classList.remove('preview-mode');
+        if (activeSliderControl) {
+            activeSliderControl.classList.remove('active');
+            activeSliderControl = null;
+        }
+    }
+
+    function setSliderPreviewMode(sliderEl) {
+        const control = sliderEl ? sliderEl.closest('.slider-control') : null;
+        if (!control) return;
+        if (activeSliderControl && activeSliderControl !== control) {
+            activeSliderControl.classList.remove('active');
+        }
+        activeSliderControl = control;
+        activeSliderControl.classList.add('active');
+        drawerEl.classList.add('preview-mode');
         resetIdleTimer();
     }
     
@@ -696,6 +731,19 @@
                 hasStarted: false
             };
         }
+    });
+
+    sliders.forEach(function(slider) {
+        slider.addEventListener('pointerdown', function() {
+            setSliderPreviewMode(slider);
+        });
+        slider.addEventListener('input', function() {
+            setSliderPreviewMode(slider);
+        });
+        slider.addEventListener('pointerup', clearSliderPreviewMode);
+        slider.addEventListener('pointercancel', clearSliderPreviewMode);
+        slider.addEventListener('blur', clearSliderPreviewMode);
+        slider.addEventListener('change', clearSliderPreviewMode);
     });
 
     zone.addEventListener('pointermove', function(e) {
