@@ -25,9 +25,16 @@ jobs:
         with:
           node-version: 20
           cache: npm
+          registry-url: https://registry.npmjs.org/   # ✅ фикс registry
+
+      - name: Force npm registry
+        run: npm config set registry https://registry.npmjs.org/   # ✅ дополнительная гарантия
+
+      - name: Debug registry (optional)
+        run: npm config get registry   # можно потом удалить
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install   # ⚠️ заменил ci → install (нет package-lock)
 
       - name: Build
         run: npm run build
