@@ -2,42 +2,35 @@
 
 ## Deploy
 
-### GitHub Pages settings (required)
-In the repository on GitHub, open **Settings → Pages** and configure the publication source as:
+### Recommended GitHub Pages setup
+Use **GitHub Actions** as the Pages source for this repository.
 
-- **Source:** Deploy from a branch
-- **Branch:** `gh-pages`
-- **Folder:** `/ (root)`
+- **Settings → Pages → Source:** `GitHub Actions`
 
-> Do not use `main` + `/ (root)` for GitHub Pages in this project.
+This prevents a common misconfiguration where Pages serves the wrong branch/root and publishes an unbuilt `index.html` that still references `/src/main.tsx`.
 
 ### Automatic deploy (GitHub Actions)
-Workflow `.github/workflows/deploy.yml` deploys only build artifacts from `dist/` to the `gh-pages` branch.
+Workflow `.github/workflows/deploy.yml`:
 
-You can trigger deployment manually from **Actions → Deploy to GitHub Pages → Run workflow**,
-or with GitHub CLI:
+1. Installs dependencies
+2. Builds production assets into `dist/`
+3. Verifies `dist/index.html` references built assets (not `/src/main.tsx`)
+4. Publishes `dist/` with official Pages actions (`upload-pages-artifact` + `deploy-pages`)
 
-```bash
-gh workflow run .github/workflows/deploy.yml
-```
+You can trigger deployment manually from **Actions → Deploy to GitHub Pages → Run workflow**.
 
 ### Post-deploy checks
-After deployment, verify the published app and generated HTML:
+After deployment, verify:
 
 1. Open `https://disstihl-lang.github.io/DrawStihl/`
-2. Open page source for `index.html`
-3. Ensure it:
-   - does **not** contain `src="/src/main.tsx"`
-   - contains links to `assets/...`
+2. Open DevTools → Network
+3. Ensure there is **no** request to `/src/main.tsx`
+4. Ensure JS/CSS are loaded from `/DrawStihl/assets/...`
 
-### Manual deploy
-Run commands in this exact order:
+### Typical 404 root cause
+If you see:
 
-1. `npm ci`
-2. `npm run build`
-3. Publish **only** contents of `dist/` (not project root sources)
+- `GET .../src/main.tsx 404 (Not Found)`
 
-Before publishing, verify `dist/index.html`:
-
-- does **not** contain `src="/src/main.tsx"`
-- contains links to files from `assets/`
+then GitHub Pages is usually serving an unbuilt source `index.html` instead of `dist/index.html`.
+Switching Pages source to **GitHub Actions** and running this workflow resolves it reliably.
