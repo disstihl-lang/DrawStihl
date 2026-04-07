@@ -2,14 +2,12 @@
 
 ## Deploy
 
-### GitHub Pages settings (for immediate compatibility)
-In repository settings use:
+### Recommended GitHub Pages setup
+Use **GitHub Actions** as the Pages source for this repository.
 
-- **Settings → Pages → Source:** `Deploy from a branch`
-- **Branch:** `gh-pages`
-- **Folder:** `/ (root)`
+- **Settings → Pages → Source:** `GitHub Actions`
 
-This matches the workflow in this repo and works without additional migration steps.
+This prevents a common misconfiguration where Pages serves the wrong branch/root and publishes an unbuilt `index.html` that still references `/src/main.tsx`.
 
 ### Automatic deploy (GitHub Actions)
 Workflow `.github/workflows/deploy.yml`:
@@ -17,7 +15,7 @@ Workflow `.github/workflows/deploy.yml`:
 1. Installs dependencies
 2. Builds production assets into `dist/`
 3. Verifies `dist/index.html` references built assets (not `/src/main.tsx`)
-4. Publishes **only** `dist/` into `gh-pages` branch
+4. Publishes `dist/` with official Pages actions (`upload-pages-artifact` + `deploy-pages`)
 
 You can trigger deployment manually from **Actions → Deploy to GitHub Pages → Run workflow**.
 
@@ -34,5 +32,5 @@ If you see:
 
 - `GET .../src/main.tsx 404 (Not Found)`
 
-then GitHub Pages is serving an unbuilt source `index.html` instead of `dist/index.html`.
-This workflow prevents that by deploying only build artifacts from `dist/`.
+then GitHub Pages is usually serving an unbuilt source `index.html` instead of `dist/index.html`.
+Switching Pages source to **GitHub Actions** and running this workflow resolves it reliably.
