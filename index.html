@@ -727,15 +727,29 @@
                 const zoomRatio = distance / pinchState.startDistance;
                 const currentMidX = (points[0].x + points[1].x) / 2;
                 const currentMidY = (points[0].y + points[1].y) / 2;
-                list.forEach(function(k) {
-                    const baseScale = pinchState.startScales[k] || states[k].s;
-                    const basePos = pinchState.startPositions[k] || states[k];
-                    const nextScale = Math.max(0.02, Math.min(20, baseScale * zoomRatio));
-                    states[k].s = nextScale;
-                    states[k].x = currentMidX + (basePos.x - pinchState.startMidpoint.x) * zoomRatio;
-                    states[k].y = currentMidY + (basePos.y - pinchState.startMidpoint.y) * zoomRatio;
-                    updateTransform(k);
-                });
+                if (isLinked) {
+                    const dxMid = currentMidX - pinchState.startMidpoint.x;
+                    const dyMid = currentMidY - pinchState.startMidpoint.y;
+                    list.forEach(function(k) {
+                        const baseScale = pinchState.startScales[k] || states[k].s;
+                        const basePos = pinchState.startPositions[k] || states[k];
+                        const nextScale = Math.max(0.02, Math.min(20, baseScale * zoomRatio));
+                        states[k].s = nextScale;
+                        states[k].x = basePos.x + dxMid;
+                        states[k].y = basePos.y + dyMid;
+                        updateTransform(k);
+                    });
+                } else {
+                    list.forEach(function(k) {
+                        const baseScale = pinchState.startScales[k] || states[k].s;
+                        const basePos = pinchState.startPositions[k] || states[k];
+                        const nextScale = Math.max(0.02, Math.min(20, baseScale * zoomRatio));
+                        states[k].s = nextScale;
+                        states[k].x = currentMidX + (basePos.x - pinchState.startMidpoint.x) * zoomRatio;
+                        states[k].y = currentMidY + (basePos.y - pinchState.startMidpoint.y) * zoomRatio;
+                        updateTransform(k);
+                    });
+                }
             }
             return;
         }
