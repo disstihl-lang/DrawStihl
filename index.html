@@ -88,11 +88,16 @@
         }
         @media (max-width: 640px) { .settings-drawer { width: 85%; } }
         .settings-drawer.open { transform: translateX(0); }
-        .settings-drawer.preview-mode .drawer-content {
-            opacity: 0.2;
+        .settings-drawer.preview-mode .drawer-content * {
+            opacity: 0;
+        }
+        .settings-drawer.preview-mode .slider-control.active,
+        .settings-drawer.preview-mode .slider-control.active * {
+            opacity: 1;
         }
         .settings-drawer.preview-mode .slider-control.active {
-            opacity: 1;
+            position: relative;
+            z-index: 2;
         }
         .settings-drawer .drawer-content,
         .settings-drawer .slider-control {
@@ -589,21 +594,24 @@
 
     function clearSliderPreviewMode() {
         drawerEl.classList.remove('preview-mode');
-        if (activeSliderControl) {
-            activeSliderControl.classList.remove('active');
-            activeSliderControl = null;
-        }
+        drawerEl.querySelectorAll('.slider-control.active').forEach(function(control) {
+            control.classList.remove('active');
+        });
+        activeSliderControl = null;
     }
 
     function setSliderPreviewMode(sliderEl) {
         const control = sliderEl ? sliderEl.closest('.slider-control') : null;
-        if (!control) return;
-        if (activeSliderControl && activeSliderControl !== control) {
-            activeSliderControl.classList.remove('active');
-        }
-        activeSliderControl = control;
-        activeSliderControl.classList.add('active');
         drawerEl.classList.add('preview-mode');
+        drawerEl.querySelectorAll('.slider-control.active').forEach(function(activeControl) {
+            if (activeControl !== control) {
+                activeControl.classList.remove('active');
+            }
+        });
+        if (control) {
+            control.classList.add('active');
+        }
+        activeSliderControl = control || null;
         resetIdleTimer();
     }
     
@@ -742,6 +750,7 @@
         });
         slider.addEventListener('pointerup', clearSliderPreviewMode);
         slider.addEventListener('pointercancel', clearSliderPreviewMode);
+        slider.addEventListener('pointerleave', clearSliderPreviewMode);
         slider.addEventListener('blur', clearSliderPreviewMode);
         slider.addEventListener('change', clearSliderPreviewMode);
     });
