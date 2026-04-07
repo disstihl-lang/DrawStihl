@@ -686,9 +686,13 @@
             const dx = points[0].x - points[1].x;
             const dy = points[0].y - points[1].y;
             const list = isLinked ? ['ref', 'user'] : [currentTarget];
+            const midpointX = (points[0].x + points[1].x) / 2;
+            const midpointY = (points[0].y + points[1].y) / 2;
             pinchState = {
                 startDistance: Math.hypot(dx, dy),
+                startMidpoint: { x: midpointX, y: midpointY },
                 startScales: Object.fromEntries(list.map(function(k) { return [k, states[k].s]; })),
+                startPositions: Object.fromEntries(list.map(function(k) { return [k, { x: states[k].x, y: states[k].y }]; })),
                 hasStarted: false
             };
         }
@@ -712,13 +716,24 @@
                 if (pinchDelta < 8) return;
                 pinchState.hasStarted = true;
                 pinchState.startDistance = distance;
+                pinchState.startMidpoint = {
+                    x: (points[0].x + points[1].x) / 2,
+                    y: (points[0].y + points[1].y) / 2
+                };
                 pinchState.startScales = Object.fromEntries(list.map(function(k) { return [k, states[k].s]; }));
+                pinchState.startPositions = Object.fromEntries(list.map(function(k) { return [k, { x: states[k].x, y: states[k].y }]; }));
             }
             if (pinchState.startDistance > 0) {
                 const zoomRatio = distance / pinchState.startDistance;
+                const currentMidX = (points[0].x + points[1].x) / 2;
+                const currentMidY = (points[0].y + points[1].y) / 2;
                 list.forEach(function(k) {
                     const baseScale = pinchState.startScales[k] || states[k].s;
-                    states[k].s = Math.max(0.02, Math.min(20, baseScale * zoomRatio));
+                    const basePos = pinchState.startPositions[k] || states[k];
+                    const nextScale = Math.max(0.02, Math.min(20, baseScale * zoomRatio));
+                    states[k].s = nextScale;
+                    states[k].x = currentMidX + (basePos.x - pinchState.startMidpoint.x) * zoomRatio;
+                    states[k].y = currentMidY + (basePos.y - pinchState.startMidpoint.y) * zoomRatio;
                     updateTransform(k);
                 });
             }
