@@ -1,0 +1,41 @@
+.canvasRoot {
+  position: relative;
+  width: 100vw;
+  height: 100dvh;
+  overflow: hidden;
+  background: #1f1f1f;
+  touch-action: none;
+}
+
+.layer {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform-origin: center;
+  max-width: none;
+  will-change: transform, filter, opacity;
+  user-select: none;
+  pointer-events: none;
+}
+
+.layerSwitch {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  gap: 8px;
+  z-index: 20;
+}
+
+.layerSwitch button {
+  border: 1px solid #444;
+  background: #222;
+  color: #fff;
+  border-radius: 8px;
+  padding: 6px 10px;
+}
+
+.active {
+  border-color: #ff5f5f;
+  background: #ff5f5f;
+}
