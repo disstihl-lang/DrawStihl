@@ -88,10 +88,12 @@
         }
         @media (max-width: 640px) { .settings-drawer { width: 85%; } }
         .settings-drawer.open { transform: translateX(0); }
-        .settings-drawer.preview-mode .drawer-content * {
+        .settings-drawer.preview-mode .drawer-content {
             opacity: 0;
         }
-        .settings-drawer.preview-mode .slider-control.active,
+        .settings-drawer.preview-mode .slider-control.active {
+            opacity: 1;
+        }
         .settings-drawer.preview-mode .slider-control.active * {
             opacity: 1;
         }
@@ -412,6 +414,23 @@
     const brValEl = document.getElementById('br-val');
     const nudgeButtons = document.querySelectorAll('.nudge-btn');
     const sliders = [opSliderEl, ctSliderEl, brSliderEl];
+    sliders.forEach(function(slider) {
+        slider.addEventListener('pointerdown', function() {
+            setSliderPreviewMode(slider);
+        });
+        slider.addEventListener('pointerup', function() {
+            clearSliderPreviewMode();
+        });
+        slider.addEventListener('pointercancel', function() {
+            clearSliderPreviewMode();
+        });
+        slider.addEventListener('blur', function() {
+            clearSliderPreviewMode();
+        });
+        slider.addEventListener('pointerleave', function() {
+            clearSliderPreviewMode();
+        });
+    });
     let activeSliderControl = null;
 
     function createDefaultState(type) {
@@ -739,20 +758,6 @@
                 hasStarted: false
             };
         }
-    });
-
-    sliders.forEach(function(slider) {
-        slider.addEventListener('pointerdown', function() {
-            setSliderPreviewMode(slider);
-        });
-        slider.addEventListener('input', function() {
-            setSliderPreviewMode(slider);
-        });
-        slider.addEventListener('pointerup', clearSliderPreviewMode);
-        slider.addEventListener('pointercancel', clearSliderPreviewMode);
-        slider.addEventListener('pointerleave', clearSliderPreviewMode);
-        slider.addEventListener('blur', clearSliderPreviewMode);
-        slider.addEventListener('change', clearSliderPreviewMode);
     });
 
     zone.addEventListener('pointermove', function(e) {
