@@ -84,12 +84,13 @@ export const useAppStore = create<AppState>((set, get) => ({
       return
     }
 
-    if (!scene.activeLayer) return
+    const { activeLayer } = scene
+    if (!activeLayer) return
 
     set((state) => ({
       scene: {
         ...state.scene,
-        [scene.activeLayer]: { ...state.scene[scene.activeLayer], ...patch },
+        [activeLayer]: { ...state.scene[activeLayer], ...patch },
       },
     }))
   },
