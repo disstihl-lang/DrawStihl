@@ -2,42 +2,35 @@
 
 ## Deploy
 
-### GitHub Pages settings (required)
-In the repository on GitHub, open **Settings → Pages** and configure the publication source as:
+### Required GitHub Pages settings
+Use:
 
-- **Source:** Deploy from a branch
-- **Branch:** `gh-pages`
-- **Folder:** `/ (root)`
+- **Settings → Pages → Source:** `GitHub Actions`
 
-> Do not use `main` + `/ (root)` for GitHub Pages in this project.
+> If you don't see/select `gh-pages` in branch list, this is the correct mode. This repository deploys via Actions artifacts, not via a publishing branch.
 
 ### Automatic deploy (GitHub Actions)
-Workflow `.github/workflows/deploy.yml` deploys only build artifacts from `dist/` to the `gh-pages` branch.
+Workflow `.github/workflows/deploy.yml`:
 
-You can trigger deployment manually from **Actions → Deploy to GitHub Pages → Run workflow**,
-or with GitHub CLI:
+1. Installs dependencies
+2. Builds production assets into `dist/`
+3. Verifies `dist/index.html` references built assets (not `/src/main.tsx`)
+4. Uploads `dist/` as Pages artifact
+5. Deploys artifact to GitHub Pages environment
 
-```bash
-gh workflow run .github/workflows/deploy.yml
-```
+You can trigger deployment manually from **Actions → Deploy to GitHub Pages → Run workflow**.
 
 ### Post-deploy checks
-After deployment, verify the published app and generated HTML:
+After deployment, verify:
 
 1. Open `https://disstihl-lang.github.io/DrawStihl/`
-2. Open page source for `index.html`
-3. Ensure it:
-   - does **not** contain `src="/src/main.tsx"`
-   - contains links to `assets/...`
+2. Open DevTools → Network
+3. Ensure there is **no** request to `/src/main.tsx`
+4. Ensure JS/CSS are loaded from `/DrawStihl/assets/...`
 
-### Manual deploy
-Run commands in this exact order:
+### Typical 404 root cause
+If you see:
 
-1. `npm ci`
-2. `npm run build`
-3. Publish **only** contents of `dist/` (not project root sources)
+- `GET .../src/main.tsx 404 (Not Found)`
 
-Before publishing, verify `dist/index.html`:
-
-- does **not** contain `src="/src/main.tsx"`
-- contains links to files from `assets/`
+GitHub Pages is serving an unbuilt source page. Switch Pages source to `GitHub Actions` and re-run deploy workflow.
