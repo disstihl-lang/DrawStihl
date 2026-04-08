@@ -35,8 +35,6 @@ const isSnapshot = (value: unknown): value is AppSnapshot => {
     isLayerState(scene.user) &&
     (scene.activeLayer === 'ref' || scene.activeLayer === 'user' || scene.activeLayer === null) &&
     isBoolean(scene.isLinked) &&
-    isBoolean(scene.isUserVisible) &&
-    isBoolean(scene.gridVisible) &&
     isBoolean(ui.drawerOpen)
   )
 }

@@ -43,24 +43,12 @@ const makeInitialLayer = (): LayerState => ({
   src: null,
 })
 
-const getResetLayerPatch = (): Pick<LayerState, 'x' | 'y' | 'scale' | 'rotation' | 'opacity' | 'contrast' | 'brightness'> => ({
-  x: 0,
-  y: 0,
-  scale: 1,
-  rotation: 0,
-  opacity: 1,
-  contrast: 1,
-  brightness: 1,
-})
-
 export const selectSnapshot = (state: AppState): AppSnapshot => ({
   scene: {
     ref: state.scene.ref,
     user: state.scene.user,
     activeLayer: state.scene.activeLayer,
     isLinked: state.scene.isLinked,
-    isUserVisible: state.scene.isUserVisible,
-    gridVisible: state.scene.gridVisible,
   },
   ui: {
     drawerOpen: state.ui.drawerOpen,
