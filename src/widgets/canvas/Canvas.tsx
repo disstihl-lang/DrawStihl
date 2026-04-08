@@ -2,6 +2,7 @@ import { useRef } from 'react'
 import { useAppStore } from '../../entities/layer/model/store'
 import { Layer } from '../../entities/layer/ui/Layer'
 import { useCanvasGestures } from '../../features/gestures/useCanvasGestures'
+import { GridOverlay } from './GridOverlay'
 import styles from './canvas.module.css'
 
 export const Canvas = () => {

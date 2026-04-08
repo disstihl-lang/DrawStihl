@@ -18,6 +18,18 @@
   pointer-events: none;
 }
 
+.gridOverlay {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  pointer-events: none;
+}
+
+.gridOverlay line {
+  stroke: rgba(255, 255, 255, 0.28);
+  stroke-width: 0.22;
+}
+
 .layerSwitch {
   position: absolute;
   top: 12px;
