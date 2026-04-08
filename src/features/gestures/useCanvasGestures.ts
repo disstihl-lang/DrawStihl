@@ -1,58 +1,46 @@
 import { RefObject } from 'react'
 import { useGesture } from '@use-gesture/react'
 import { useAppStore } from '../../entities/layer/model/store'
+import {
+  applyPatchToTargets,
+  buildDragPatch,
+  buildPinchPatch,
+  createDragMemo,
+  createPinchMemo,
+  type DragMemo,
+  type PinchMemo,
+} from './model/gestureController'
 
 export const useCanvasGestures = (targetRef: RefObject<HTMLElement>) => {
-  const updateLayer = useAppStore((s) => s.updateLayer)
-  const scene = useAppStore((s) => s.scene)
-
   useGesture(
     {
       onDrag: ({ first, movement: [mx, my], memo }) => {
-        const layerId = scene.activeLayer
-        if (!layerId) return memo
+        const { scene, updateLayer } = useAppStore.getState()
+        const activeLayerId = scene.activeLayer
+        if (!activeLayerId) return memo
 
-        const layer = scene[layerId]
-        const start = first || !memo ? { x: layer.x, y: layer.y } : memo
-        const nextPatch = { x: start.x + mx, y: start.y + my }
+        const activeLayer = scene[activeLayerId]
+        const start = first || !memo ? createDragMemo(activeLayer) : (memo as DragMemo)
+        const patch = buildDragPatch(start, mx, my)
 
-        if (scene.isLinked) {
-          updateLayer('ref', nextPatch)
-          updateLayer('user', nextPatch)
-        } else {
-          updateLayer(layerId, nextPatch)
-        }
-
+        applyPatchToTargets(scene, updateLayer, patch)
         return start
       },
 
       onPinch: ({ first, offset: [distance, angle], memo }) => {
-        const layerId = scene.activeLayer
-        if (!layerId) return memo
+        const { scene, updateLayer } = useAppStore.getState()
+        const activeLayerId = scene.activeLayer
+        if (!activeLayerId) return memo
 
-        const layer = scene[layerId]
+        const activeLayer = scene[activeLayerId]
         const start =
           first || !memo
-            ? {
-                scale: layer.scale,
-                rotation: layer.rotation,
-                baseDistance: distance || 1,
-                baseAngle: angle,
-              }
-            : memo
+            ? createPinchMemo(activeLayer, distance, angle)
+            : (memo as PinchMemo)
 
-        const scaleFactor = (distance || 1) / start.baseDistance
-        const nextScale = Math.max(0.1, start.scale * scaleFactor)
-        const nextRotation = start.rotation + (angle - start.baseAngle)
-        const nextPatch = { scale: nextScale, rotation: nextRotation }
+        const patch = buildPinchPatch(start, distance, angle)
 
-        if (scene.isLinked) {
-          updateLayer('ref', nextPatch)
-          updateLayer('user', nextPatch)
-        } else {
-          updateLayer(layerId, nextPatch)
-        }
-
+        applyPatchToTargets(scene, updateLayer, patch)
         return start
       },
     },
