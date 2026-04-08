@@ -1,15 +1,7 @@
 import { RefObject } from 'react'
 import { useGesture } from '@use-gesture/react'
 import { useAppStore } from '../../entities/layer/model/store'
-import {
-  applyPatchToTargets,
-  buildDragPatch,
-  buildPinchPatch,
-  createDragMemo,
-  createPinchMemo,
-  type DragMemo,
-  type PinchMemo,
-} from './model/gestureController'
+import { clampScale } from '../../entities/layer/lib/transform'
 
 export const useCanvasGestures = (targetRef: RefObject<HTMLElement>) => {
   useGesture(
@@ -35,8 +27,18 @@ export const useCanvasGestures = (targetRef: RefObject<HTMLElement>) => {
         const activeLayer = scene[activeLayerId]
         const start =
           first || !memo
-            ? createPinchMemo(activeLayer, distance, angle)
-            : (memo as PinchMemo)
+            ? {
+                scale: layer.scale,
+                rotation: layer.rotation,
+                baseDistance: distance || 1,
+                baseAngle: angle,
+              }
+            : memo
+
+        const scaleFactor = (distance || 1) / start.baseDistance
+        const nextScale = clampScale(start.scale * scaleFactor)
+        const nextRotation = start.rotation + (angle - start.baseAngle)
+        const nextPatch = { scale: nextScale, rotation: nextRotation }
 
         const patch = buildPinchPatch(start, distance, angle)
 

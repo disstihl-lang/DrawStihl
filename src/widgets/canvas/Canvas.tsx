@@ -24,7 +24,6 @@ export const Canvas = () => {
     <div className={styles.canvasRoot} ref={zoneRef}>
       <Layer layer={scene.ref} alt="Reference layer" />
       <Layer layer={userLayer} alt="User layer" />
-      <GridOverlay visible={scene.gridVisible} />
 
       <div className={styles.layerSwitch}>
         <button onClick={activateRefLayer} className={scene.activeLayer === 'ref' ? styles.active : ''}>

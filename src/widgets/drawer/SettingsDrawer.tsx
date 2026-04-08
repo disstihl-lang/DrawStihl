@@ -36,14 +36,17 @@ export const SettingsDrawer = () => {
           <input id="linked-mode" type="checkbox" checked={scene.isLinked} onChange={onLinkedModeChange} />
         </div>
 
-        <div className={styles.controlsGroup}>
-          <button type="button" className={styles.controlButton} onClick={toggleGrid}>
+        <div className={styles.checkboxRow}>
+          <button type="button" onClick={toggleGrid}>
             {scene.gridVisible ? 'Hide grid' : 'Show grid'}
           </button>
-          <button type="button" className={styles.controlButton} onClick={toggleUserVisibility}>
+          <button type="button" onClick={toggleUserVisibility}>
             {scene.isUserVisible ? 'Hide user layer' : 'Show user layer'}
           </button>
-          <button type="button" className={styles.controlButton} onClick={resetAll}>
+        </div>
+
+        <div className={styles.checkboxRow}>
+          <button type="button" onClick={resetAll}>
             Reset all
           </button>
         </div>
