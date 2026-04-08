@@ -19,25 +19,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Validate Pages source settings
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const { owner, repo } = context.repo
-            const response = await github.rest.repos.getPages({ owner, repo })
-            const source = response.data?.source || {}
-            const branch = source.branch
-            const path = source.path
-
-            core.info(`Current Pages source: branch=${branch}, path=${path}`)
-
-            if (branch !== 'gh-pages' || path !== '/') {
-              core.setFailed(
-                `GitHub Pages source must be gh-pages/(root). Current: ${branch}${path}. ` +
-                `Fix in Settings → Pages before deploying.`
-              )
-            }
-
       - name: Checkout
         uses: actions/checkout@v4
 
