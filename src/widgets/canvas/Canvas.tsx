@@ -14,10 +14,15 @@ export const Canvas = () => {
   const activateRefLayer = () => setActiveLayer('ref')
   const activateUserLayer = () => setActiveLayer('user')
 
+  const userLayer = {
+    ...scene.user,
+    visible: scene.user.visible && scene.isUserVisible,
+  }
+
   return (
     <div className={styles.canvasRoot} ref={zoneRef}>
       <Layer layer={scene.ref} alt="Reference layer" />
-      <Layer layer={scene.user} alt="User layer" />
+      <Layer layer={userLayer} alt="User layer" />
 
       <div className={styles.layerSwitch}>
         <button onClick={activateRefLayer} className={scene.activeLayer === 'ref' ? styles.active : ''}>
