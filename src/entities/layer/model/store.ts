@@ -19,6 +19,10 @@ export type AppState = {
 
   setActiveLayer: (layer: LayerId | null) => void
   setLinkedMode: (value: boolean) => void
+  toggleLinkedMode: () => void
+  toggleUserVisibility: () => void
+  toggleGrid: () => void
+  resetAll: () => void
   updateLayer: (layer: LayerId, patch: Partial<LayerState>) => void
   updateActiveOrLinked: (patch: Partial<LayerState>) => void
   setPreviewSlider: (type: SliderType | null) => void
@@ -57,6 +61,8 @@ export const useAppStore = create<AppState>((set, get) => ({
     user: makeInitialLayer(),
     activeLayer: 'ref',
     isLinked: false,
+    isUserVisible: true,
+    gridVisible: false,
   },
   ui: {
     drawerOpen: true,
@@ -75,6 +81,37 @@ export const useAppStore = create<AppState>((set, get) => ({
     set((state) => ({
       scene: { ...state.scene, isLinked: value },
     })),
+
+  toggleLinkedMode: () =>
+    set((state) => ({
+      scene: { ...state.scene, isLinked: !state.scene.isLinked },
+    })),
+
+  toggleUserVisibility: () =>
+    set((state) => ({
+      scene: { ...state.scene, isUserVisible: !state.scene.isUserVisible },
+    })),
+
+  toggleGrid: () =>
+    set((state) => ({
+      scene: { ...state.scene, gridVisible: !state.scene.gridVisible },
+    })),
+
+  resetAll: () =>
+    set((state) => {
+      const patch = getResetLayerPatch()
+
+      return {
+        scene: {
+          ...state.scene,
+          ref: { ...state.scene.ref, ...patch },
+          user: { ...state.scene.user, ...patch },
+          isLinked: false,
+          isUserVisible: true,
+          gridVisible: false,
+        },
+      }
+    }),
 
   updateLayer: (layer, patch) =>
     set((state) => ({

@@ -17,6 +17,8 @@ export type SceneState = {
   user: LayerState
   activeLayer: LayerId | null
   isLinked: boolean
+  isUserVisible: boolean
+  gridVisible: boolean
 }
 
 export type SliderType = 'opacity' | 'contrast' | 'brightness'

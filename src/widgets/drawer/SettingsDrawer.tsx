@@ -10,6 +10,9 @@ export const SettingsDrawer = () => {
   const scene = useAppStore((s) => s.scene)
   const setDrawerOpen = useAppStore((s) => s.setDrawerOpen)
   const setLinkedMode = useAppStore((s) => s.setLinkedMode)
+  const toggleGrid = useAppStore((s) => s.toggleGrid)
+  const toggleUserVisibility = useAppStore((s) => s.toggleUserVisibility)
+  const resetAll = useAppStore((s) => s.resetAll)
 
   const isPreview = previewSlider !== null
 
@@ -31,6 +34,21 @@ export const SettingsDrawer = () => {
         <div className={styles.checkboxRow}>
           <label htmlFor="linked-mode">Linked mode</label>
           <input id="linked-mode" type="checkbox" checked={scene.isLinked} onChange={onLinkedModeChange} />
+        </div>
+
+        <div className={styles.checkboxRow}>
+          <button type="button" onClick={toggleGrid}>
+            {scene.gridVisible ? 'Hide grid' : 'Show grid'}
+          </button>
+          <button type="button" onClick={toggleUserVisibility}>
+            {scene.isUserVisible ? 'Hide user layer' : 'Show user layer'}
+          </button>
+        </div>
+
+        <div className={styles.checkboxRow}>
+          <button type="button" onClick={resetAll}>
+            Reset all
+          </button>
         </div>
 
         <SliderControl type="opacity" />
