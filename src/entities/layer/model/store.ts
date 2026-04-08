@@ -7,8 +7,9 @@ import type {
   UIState,
   ShapeEntity,
 } from './types'
+import type { AppSnapshot } from './persistence'
 
-type AppState = {
+export type AppState = {
   scene: SceneState
   ui: UIState
 
@@ -23,6 +24,7 @@ type AppState = {
   setPreviewSlider: (type: SliderType | null) => void
   setDrawerOpen: (open: boolean) => void
   setLayerSource: (layer: LayerId, src: string | null) => void
+  hydrateFromSnapshot: (snapshot: AppSnapshot) => void
 }
 
 const makeInitialLayer = (): LayerState => ({
@@ -35,6 +37,18 @@ const makeInitialLayer = (): LayerState => ({
   brightness: 1,
   visible: true,
   src: null,
+})
+
+export const selectSnapshot = (state: AppState): AppSnapshot => ({
+  scene: {
+    ref: state.scene.ref,
+    user: state.scene.user,
+    activeLayer: state.scene.activeLayer,
+    isLinked: state.scene.isLinked,
+  },
+  ui: {
+    drawerOpen: state.ui.drawerOpen,
+  },
 })
 
 export const useAppStore = create<AppState>((set, get) => ({
@@ -110,6 +124,16 @@ export const useAppStore = create<AppState>((set, get) => ({
       scene: {
         ...state.scene,
         [layer]: { ...state.scene[layer], src, visible: !!src },
+      },
+    })),
+
+  hydrateFromSnapshot: (snapshot) =>
+    set((state) => ({
+      ...state,
+      scene: snapshot.scene,
+      ui: {
+        ...state.ui,
+        drawerOpen: snapshot.ui.drawerOpen,
       },
     })),
 }))
