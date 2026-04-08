@@ -4,34 +4,27 @@ import { useAppStore } from '../../entities/layer/model/store'
 import { clampScale } from '../../entities/layer/lib/transform'
 
 export const useCanvasGestures = (targetRef: RefObject<HTMLElement>) => {
-  const updateLayer = useAppStore((s) => s.updateLayer)
-  const scene = useAppStore((s) => s.scene)
-
   useGesture(
     {
       onDrag: ({ first, movement: [mx, my], memo }) => {
-        const layerId = scene.activeLayer
-        if (!layerId) return memo
+        const { scene, updateLayer } = useAppStore.getState()
+        const activeLayerId = scene.activeLayer
+        if (!activeLayerId) return memo
 
-        const layer = scene[layerId]
-        const start = first || !memo ? { x: layer.x, y: layer.y } : memo
-        const nextPatch = { x: start.x + mx, y: start.y + my }
+        const activeLayer = scene[activeLayerId]
+        const start = first || !memo ? createDragMemo(activeLayer) : (memo as DragMemo)
+        const patch = buildDragPatch(start, mx, my)
 
-        if (scene.isLinked) {
-          updateLayer('ref', nextPatch)
-          updateLayer('user', nextPatch)
-        } else {
-          updateLayer(layerId, nextPatch)
-        }
-
+        applyPatchToTargets(scene, updateLayer, patch)
         return start
       },
 
       onPinch: ({ first, offset: [distance, angle], memo }) => {
-        const layerId = scene.activeLayer
-        if (!layerId) return memo
+        const { scene, updateLayer } = useAppStore.getState()
+        const activeLayerId = scene.activeLayer
+        if (!activeLayerId) return memo
 
-        const layer = scene[layerId]
+        const activeLayer = scene[activeLayerId]
         const start =
           first || !memo
             ? {
@@ -47,13 +40,9 @@ export const useCanvasGestures = (targetRef: RefObject<HTMLElement>) => {
         const nextRotation = start.rotation + (angle - start.baseAngle)
         const nextPatch = { scale: nextScale, rotation: nextRotation }
 
-        if (scene.isLinked) {
-          updateLayer('ref', nextPatch)
-          updateLayer('user', nextPatch)
-        } else {
-          updateLayer(layerId, nextPatch)
-        }
+        const patch = buildPinchPatch(start, distance, angle)
 
+        applyPatchToTargets(scene, updateLayer, patch)
         return start
       },
     },
