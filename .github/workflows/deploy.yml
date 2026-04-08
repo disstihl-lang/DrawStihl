@@ -7,6 +7,7 @@ on:
 
 permissions:
   contents: write
+  pages: write
 
 concurrency:
   group: github-pages
@@ -17,6 +18,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Validate Pages source settings
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const { owner, repo } = context.repo
+            const response = await github.rest.repos.getPages({ owner, repo })
+            const source = response.data?.source || {}
+            const branch = source.branch
+            const path = source.path
+
+            core.info(`Current Pages source: branch=${branch}, path=${path}`)
+
+            if (branch !== 'gh-pages' || path !== '/') {
+              core.setFailed(
+                `GitHub Pages source must be gh-pages/(root). Current: ${branch}${path}. ` +
+                `Fix in Settings → Pages before deploying.`
+              )
+            }
+
       - name: Checkout
         uses: actions/checkout@v4
 
@@ -25,16 +45,9 @@ jobs:
         with:
           node-version: 20
           cache: npm
-          registry-url: https://registry.npmjs.org/   # ✅ фикс registry
-
-      - name: Force npm registry
-        run: npm config set registry https://registry.npmjs.org/   # ✅ дополнительная гарантия
-
-      - name: Debug registry (optional)
-        run: npm config get registry   # можно потом удалить
 
       - name: Install dependencies
-        run: npm install   # ⚠️ заменил ci → install (нет package-lock)
+        run: npm install
 
       - name: Build
         run: npm run build
@@ -43,7 +56,7 @@ jobs:
         run: |
           test -f dist/index.html
           ! grep -q 'src="/src/main.tsx"' dist/index.html
-          grep -q 'assets/' dist/index.html
+          grep -q '/DrawStihl/assets/' dist/index.html
 
       - name: Deploy build artifacts to gh-pages
         uses: JamesIves/github-pages-deploy-action@v4
