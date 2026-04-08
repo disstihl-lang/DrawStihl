@@ -7,8 +7,9 @@ import type {
   UIState,
   ShapeEntity,
 } from './types'
+import type { AppSnapshot } from './persistence'
 
-type AppState = {
+export type AppState = {
   scene: SceneState
   ui: UIState
 
@@ -18,11 +19,16 @@ type AppState = {
 
   setActiveLayer: (layer: LayerId | null) => void
   setLinkedMode: (value: boolean) => void
+  toggleLinkedMode: () => void
+  toggleUserVisibility: () => void
+  toggleGrid: () => void
+  resetAll: () => void
   updateLayer: (layer: LayerId, patch: Partial<LayerState>) => void
   updateActiveOrLinked: (patch: Partial<LayerState>) => void
   setPreviewSlider: (type: SliderType | null) => void
   setDrawerOpen: (open: boolean) => void
   setLayerSource: (layer: LayerId, src: string | null) => void
+  hydrateFromSnapshot: (snapshot: AppSnapshot) => void
 }
 
 const makeInitialLayer = (): LayerState => ({
@@ -37,12 +43,38 @@ const makeInitialLayer = (): LayerState => ({
   src: null,
 })
 
+const getResetLayerPatch = (): Pick<LayerState, 'x' | 'y' | 'scale' | 'rotation' | 'opacity' | 'contrast' | 'brightness'> => ({
+  x: 0,
+  y: 0,
+  scale: 1,
+  rotation: 0,
+  opacity: 1,
+  contrast: 1,
+  brightness: 1,
+})
+
+export const selectSnapshot = (state: AppState): AppSnapshot => ({
+  scene: {
+    ref: state.scene.ref,
+    user: state.scene.user,
+    activeLayer: state.scene.activeLayer,
+    isLinked: state.scene.isLinked,
+    isUserVisible: state.scene.isUserVisible,
+    gridVisible: state.scene.gridVisible,
+  },
+  ui: {
+    drawerOpen: state.ui.drawerOpen,
+  },
+})
+
 export const useAppStore = create<AppState>((set, get) => ({
   scene: {
     ref: makeInitialLayer(),
     user: makeInitialLayer(),
     activeLayer: 'ref',
     isLinked: false,
+    isUserVisible: true,
+    gridVisible: false,
   },
   ui: {
     drawerOpen: true,
@@ -61,6 +93,37 @@ export const useAppStore = create<AppState>((set, get) => ({
     set((state) => ({
       scene: { ...state.scene, isLinked: value },
     })),
+
+  toggleLinkedMode: () =>
+    set((state) => ({
+      scene: { ...state.scene, isLinked: !state.scene.isLinked },
+    })),
+
+  toggleUserVisibility: () =>
+    set((state) => ({
+      scene: { ...state.scene, isUserVisible: !state.scene.isUserVisible },
+    })),
+
+  toggleGrid: () =>
+    set((state) => ({
+      scene: { ...state.scene, gridVisible: !state.scene.gridVisible },
+    })),
+
+  resetAll: () =>
+    set((state) => {
+      const patch = getResetLayerPatch()
+
+      return {
+        scene: {
+          ...state.scene,
+          ref: { ...state.scene.ref, ...patch },
+          user: { ...state.scene.user, ...patch },
+          isLinked: false,
+          isUserVisible: true,
+          gridVisible: false,
+        },
+      }
+    }),
 
   updateLayer: (layer, patch) =>
     set((state) => ({
@@ -110,6 +173,16 @@ export const useAppStore = create<AppState>((set, get) => ({
       scene: {
         ...state.scene,
         [layer]: { ...state.scene[layer], src, visible: !!src },
+      },
+    })),
+
+  hydrateFromSnapshot: (snapshot) =>
+    set((state) => ({
+      ...state,
+      scene: snapshot.scene,
+      ui: {
+        ...state.ui,
+        drawerOpen: snapshot.ui.drawerOpen,
       },
     })),
 }))

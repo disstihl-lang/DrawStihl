@@ -50,3 +50,24 @@
   align-items: center;
   justify-content: space-between;
 }
+
+.controlsGroup {
+  display: grid;
+  gap: 8px;
+}
+
+.controlButton {
+  width: 100%;
+  border: 1px solid #d2d2d2;
+  border-radius: 8px;
+  background: #f6f6f6;
+  color: #222;
+  padding: 8px 10px;
+  font-size: 13px;
+  text-align: left;
+  cursor: pointer;
+}
+
+.controlButton:hover {
+  background: #ededed;
+}
